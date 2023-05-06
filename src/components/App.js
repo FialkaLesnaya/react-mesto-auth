@@ -13,6 +13,7 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -23,6 +24,7 @@ function App() {
   const [deletedCard, setDeletedCard] = useState(null);
   const [currentUser, setCurrentUser] = useState(currentUserObject);
   const [cards, setCards] = useState([]);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
@@ -140,7 +142,7 @@ function App() {
       });
   }
 
-  return (
+  const pageComponent = (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__content">
@@ -186,6 +188,24 @@ function App() {
         </div>
       </div>
     </CurrentUserContext.Provider>
+  );
+
+  return (
+    <Routes>
+      <Route
+        path="/sign-in"
+        element={<div className="loginContainer">LOGIN COMPONENT</div>}
+      />
+      <Route
+        path="/sign-up"
+        element={<div className="registerContainer">REGISTER COMPONENT</div>}
+      />
+
+      <Route
+        path="/"
+        element={loggedIn ? pageComponent : <Navigate to="/sign-in" replace />}
+      />
+    </Routes>
   );
 }
 
