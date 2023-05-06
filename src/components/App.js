@@ -191,21 +191,33 @@ function App() {
   );
 
   return (
-    <Routes>
-      <Route
-        path="/sign-in"
-        element={<div className="loginContainer">LOGIN COMPONENT</div>}
-      />
-      <Route
-        path="/sign-up"
-        element={<div className="registerContainer">REGISTER COMPONENT</div>}
-      />
+    <CurrentUserContext.Provider value={currentUser}>
+      <div className="page">
+        <div className="page__content">
+          <Header></Header>
 
-      <Route
-        path="/"
-        element={loggedIn ? pageComponent : <Navigate to="/sign-in" replace />}
-      />
-    </Routes>
+          <Routes>
+            <Route
+              path="/sign-in"
+              element={<div className="loginContainer">LOGIN COMPONENT</div>}
+            />
+            <Route
+              path="/sign-up"
+              element={
+                <div className="registerContainer">REGISTER COMPONENT</div>
+              }
+            />
+
+            <Route
+              path="/"
+              element={
+                loggedIn ? pageComponent : <Navigate to="/sign-in" replace />
+              }
+            />
+          </Routes>
+        </div>
+      </div>
+    </CurrentUserContext.Provider>
   );
 }
 
