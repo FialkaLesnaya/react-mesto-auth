@@ -15,6 +15,7 @@ import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Login";
+import Register from "./Register";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -209,7 +210,9 @@ function App() {
             <Route
               path="/sign-up"
               element={
-                <div className="registerContainer">REGISTER COMPONENT</div>
+                <div className="registerContainer">
+                  <Register></Register>
+                </div>
               }
             />
 
