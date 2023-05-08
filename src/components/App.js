@@ -14,6 +14,7 @@ import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
 import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./Login";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -199,7 +200,11 @@ function App() {
           <Routes>
             <Route
               path="/sign-in"
-              element={<div className="loginContainer">LOGIN COMPONENT</div>}
+              element={
+                <div className="loginContainer">
+                  <Login></Login>
+                </div>
+              }
             />
             <Route
               path="/sign-up"
