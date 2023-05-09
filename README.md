@@ -11,9 +11,10 @@
 **Описание технологий**
  Сайт сделан с использованием HTML5 и CSS. Реализована адаптивная верстка для мобильных разрешений экранов.
  Все изображения были оптимизированы. Проект реализован по БЭМ архитектуре. Были добавлены библиотеки Normalize и использованы бесплатные шрифты Inter. Был использован JavaScript для интерактивного изменения содержимого страницы.
- Проект был перенесен на технологию React с использованием функционального подхода и реакт-хуков 
+ Проект был перенесен на технологию React с использованием функционального подхода и реакт-хуков
+ Проект был интегрирован с сервисом авторизации с использованием JWT-токена 
 
 **Ссылки**
-* [Ссылка на Gitlub](https://github.com/FialkaLesnaya/mesto-react)
+* [Ссылка на Gitlub](https://github.com/FialkaLesnaya/react-mesto-auth)
 * [Ссылка на макет в Figma](https://www.figma.com/file/2cn9N9jSkmxD84oJik7xL7/JavaScript.-Sprint-4?node-id=0%3A1)
-* [Ссылка на Github page](https://fialkalesnaya.github.io/mesto-react/)
+* [Ссылка на Github page](https://fialkalesnaya.github.io/mesto-react-auth/)
