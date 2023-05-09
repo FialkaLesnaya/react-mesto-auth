@@ -28,7 +28,8 @@ function App() {
   const [deletedCard, setDeletedCard] = useState(null);
   const [currentUser, setCurrentUser] = useState(currentUserObject);
   const [cards, setCards] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [email, setEmail] = useState(null);
   const navigate = useNavigate();
 
   const handleEditAvatarClick = () => {
@@ -62,10 +63,25 @@ function App() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (token && email == null) {
+      AuthApi.checkMe(token)
+        .then((response) => {
+          setEmail(response.data.email);
+          setLoggedIn(true);
+          navigate("/", { replace: true });
+        })
+        .catch((err) => {
+          console.log(`Ошибка загрузки изначальных данных ${err}`);
+        });
+    }
+  }, [email, navigate]);
+
+  useEffect(() => {
     if (loggedIn) {
       Api.getCurrentUser()
         .then((userData) => {
-          setCurrentUser({ ...currentUser, ...userData });
+          setCurrentUser(userData);
         })
         .catch((err) => {
           console.log(`Ошибка загрузки данных ${err}`);
@@ -84,24 +100,6 @@ function App() {
         });
     }
   }, [loggedIn]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    if (token && currentUser.email === "") {
-      AuthApi.checkMe(token)
-        .then((response) => {
-          setCurrentUser({
-            ...currentUser,
-            email: response.data.email,
-          });
-          setLoggedIn(true);
-          navigate("/", { replace: true });
-        })
-        .catch((err) => {
-          console.log(`Ошибка загрузки изначальных данных ${err}`);
-        });
-    }
-  }, [currentUser, navigate]);
 
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
@@ -139,7 +137,6 @@ function App() {
           name: name,
           about: about,
           avatar: user.avatar,
-          email: currentUser.email,
         });
         closeAllPopups();
       })
@@ -155,7 +152,6 @@ function App() {
           name: user.name,
           about: user.about,
           avatar: user.avatar,
-          email: currentUser.email,
         });
         closeAllPopups();
       })
@@ -180,6 +176,7 @@ function App() {
       .then((data) => {
         if (data.token) {
           localStorage.setItem("jwt", data.token);
+          setEmail(email);
           setLoggedIn(true);
           navigate("/", { replace: true });
         }
@@ -248,7 +245,7 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__content">
-          <Header handeLogOut={handeLogOut}></Header>
+          <Header email={email} handeLogOut={handeLogOut}></Header>
 
           <Routes>
             <Route

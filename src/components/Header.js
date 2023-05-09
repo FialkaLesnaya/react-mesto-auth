@@ -23,7 +23,7 @@ function Header(props) {
 
   const exitLink = (
     <div>
-      <span>{currentUser.email}</span>
+      <span>{props.email}</span>
       <Link className="header__link" to="/sign-in" onClick={onLogOut}>
         Выйти
       </Link>
