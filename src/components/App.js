@@ -16,6 +16,7 @@ import DeleteCardPopup from "./DeleteCardPopup";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
+import ProtectedRouteElement from "./ProtectedRoute";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -219,7 +220,20 @@ function App() {
             <Route
               path="/"
               element={
-                loggedIn ? pageComponent : <Navigate to="/sign-in" replace />
+                <ProtectedRouteElement
+                  element={pageComponent}
+                  loggedIn={loggedIn}
+                />
+              }
+            />
+
+            <Route
+              path="*"
+              element={
+                <ProtectedRouteElement
+                  element={pageComponent}
+                  loggedIn={loggedIn}
+                />
               }
             />
           </Routes>
