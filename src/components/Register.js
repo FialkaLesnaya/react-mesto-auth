@@ -1,21 +1,41 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
-function Register() {
+function Register(props) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  function onSubmit(e) {
+    e.preventDefault();
+
+    props.handleRegister(password, email);
+  }
+
+  function handleEmailChange(e) {
+    setEmail(e.target.value);
+  }
+
+  function handlePasswordChange(e) {
+    setPassword(e.target.value);
+  }
+
   return (
     <div className="auth">
       <h2 className="auth__title">Регистрация</h2>
 
-      <form className="auth__form">
+      <form onSubmit={onSubmit} noValidate className="auth__form">
         <label className="auth__label">
           <input
             required
             type="text"
             className="auth__input"
-            id="job-input"
-            name="job"
+            id="email-input"
+            name="email"
             minLength={2}
             maxLength={200}
             placeholder="Email"
+            value={email}
+            onChange={handleEmailChange}
           ></input>
 
           <span className="auth__input-error job-input-error"></span>
@@ -27,17 +47,19 @@ function Register() {
             required
             type="text"
             className="auth__input"
-            id="job-input"
-            name="job"
+            id="password-input"
+            name="password"
             minLength={2}
             maxLength={200}
+            value={password}
+            onChange={handlePasswordChange}
           ></input>
 
           <span className="auth__input-error job-input-error"></span>
         </label>
 
         <button
-          aria-label="Войти"
+          aria-label="Зарегистрироваться"
           className="auth__submit-button"
           type="submit"
         >

@@ -13,10 +13,11 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
 import ProtectedRouteElement from "./ProtectedRoute";
+import { AuthApi } from "utils/AuthApi";
 
 function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
@@ -27,7 +28,8 @@ function App() {
   const [deletedCard, setDeletedCard] = useState(null);
   const [currentUser, setCurrentUser] = useState(currentUserObject);
   const [cards, setCards] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(true);
+  const navigate = useNavigate();
 
   const handleEditAvatarClick = () => {
     setIsEditAvatarPopupOpen(true);
@@ -60,24 +62,46 @@ function App() {
   };
 
   useEffect(() => {
-    Api.getCurrentUser()
-      .then((userData) => {
-        setCurrentUser(userData);
-      })
-      .catch((err) => {
-        console.log(`Ошибка загрузки данных ${err}`);
-      });
-  }, []);
+    if (loggedIn) {
+      Api.getCurrentUser()
+        .then((userData) => {
+          setCurrentUser({ ...currentUser, ...userData });
+        })
+        .catch((err) => {
+          console.log(`Ошибка загрузки данных ${err}`);
+        });
+    }
+  }, [loggedIn]);
 
   useEffect(() => {
-    Api.loadCards()
-      .then((userCards) => {
-        setCards(userCards);
-      })
-      .catch((err) => {
-        console.log(`Ошибка загрузки изначальных данных ${err}`);
-      });
-  }, []);
+    if (loggedIn) {
+      Api.loadCards()
+        .then((userCards) => {
+          setCards(userCards);
+        })
+        .catch((err) => {
+          console.log(`Ошибка загрузки изначальных данных ${err}`);
+        });
+    }
+  }, [loggedIn]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+    if (token && currentUser.email === "") {
+      AuthApi.checkMe(token)
+        .then((response) => {
+          setCurrentUser({
+            ...currentUser,
+            email: response.data.email,
+          });
+          setLoggedIn(true);
+          navigate("/", { replace: true });
+        })
+        .catch((err) => {
+          console.log(`Ошибка загрузки изначальных данных ${err}`);
+        });
+    }
+  }, [currentUser, navigate]);
 
   function handleCardLike(card) {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
@@ -111,7 +135,12 @@ function App() {
   function handleUpdateUser({ name, about }) {
     Api.editProfile(name, about)
       .then((user) => {
-        setCurrentUser({ name: name, about: about, avatar: user.avatar });
+        setCurrentUser({
+          name: name,
+          about: about,
+          avatar: user.avatar,
+          email: currentUser.email,
+        });
         closeAllPopups();
       })
       .catch((err) => {
@@ -126,6 +155,7 @@ function App() {
           name: user.name,
           about: user.about,
           avatar: user.avatar,
+          email: currentUser.email,
         });
         closeAllPopups();
       })
@@ -145,66 +175,87 @@ function App() {
       });
   }
 
+  function handleLogin(password, email) {
+    AuthApi.signIn(password, email)
+      .then((data) => {
+        if (data.token) {
+          localStorage.setItem("jwt", data.token);
+          setLoggedIn(true);
+          navigate("/", { replace: true });
+        }
+      })
+      .catch((err) => {
+        console.log(`Ошибка загрузки данных ${err}`);
+      });
+  }
+
+  function handleRegister(password, email) {
+    AuthApi.signUp(password, email)
+      .then((data) => {})
+      .catch((err) => {
+        console.log(`Ошибка загрузки данных ${err}`);
+      });
+  }
+  function handeLogOut() {
+    localStorage.removeItem("jwt");
+    setLoggedIn(false);
+    navigate("/sign-in", { replace: true });
+  }
+
   const pageComponent = (
-    <CurrentUserContext.Provider value={currentUser}>
-      <div className="page">
-        <div className="page__content">
-          <Header></Header>
+    <div>
+      <Main
+        onEditAvatar={handleEditAvatarClick}
+        onEditProfile={handleEditProfileClick}
+        onAddPlace={handleAddPlaceClick}
+        onDeleteCardClick={handleDeleteCardClick}
+        onCardClick={handleCardClick}
+        cards={cards}
+        onCardLike={handleCardLike}
+      ></Main>
 
-          <Main
-            onEditAvatar={handleEditAvatarClick}
-            onEditProfile={handleEditProfileClick}
-            onAddPlace={handleAddPlaceClick}
-            onDeleteCardClick={handleDeleteCardClick}
-            onCardClick={handleCardClick}
-            cards={cards}
-            onCardLike={handleCardLike}
-          ></Main>
+      <Footer></Footer>
 
-          <Footer></Footer>
+      <ImagePopup onClose={closeAllPopups} card={selectedCard}></ImagePopup>
 
-          <ImagePopup onClose={closeAllPopups} card={selectedCard}></ImagePopup>
+      <EditProfilePopup
+        isOpen={isEditProfilePopupOpen}
+        onClose={closeAllPopups}
+        onUpdateUser={handleUpdateUser}
+      />
 
-          <EditProfilePopup
-            isOpen={isEditProfilePopupOpen}
-            onClose={closeAllPopups}
-            onUpdateUser={handleUpdateUser}
-          />
+      <EditAvatarPopup
+        isOpen={isEditAvatarPopupOpen}
+        onClose={closeAllPopups}
+        onUpdateAvatar={handleUpdateAvatar}
+      />
 
-          <EditAvatarPopup
-            isOpen={isEditAvatarPopupOpen}
-            onClose={closeAllPopups}
-            onUpdateAvatar={handleUpdateAvatar}
-          />
+      <AddPlacePopup
+        isOpen={isAddPlacePopupOpen}
+        onClose={closeAllPopups}
+        onAddPlace={handleAddPlaceSubmit}
+      />
 
-          <AddPlacePopup
-            isOpen={isAddPlacePopupOpen}
-            onClose={closeAllPopups}
-            onAddPlace={handleAddPlaceSubmit}
-          />
-
-          <DeleteCardPopup
-            isOpen={isDeleteCardOpen}
-            onClose={closeAllPopups}
-            onCardDelete={handleCardDeleteSubmit}
-          />
-        </div>
-      </div>
-    </CurrentUserContext.Provider>
+      <DeleteCardPopup
+        isOpen={isDeleteCardOpen}
+        onClose={closeAllPopups}
+        onCardDelete={handleCardDeleteSubmit}
+      />
+    </div>
   );
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <div className="page__content">
-          <Header></Header>
+          <Header handeLogOut={handeLogOut}></Header>
 
           <Routes>
             <Route
               path="/sign-in"
               element={
                 <div className="loginContainer">
-                  <Login></Login>
+                  <Login handleLogin={handleLogin}></Login>
                 </div>
               }
             />
@@ -212,7 +263,7 @@ function App() {
               path="/sign-up"
               element={
                 <div className="registerContainer">
-                  <Register></Register>
+                  <Register handleRegister={handleRegister}></Register>
                 </div>
               }
             />
@@ -220,20 +271,18 @@ function App() {
             <Route
               path="/"
               element={
-                <ProtectedRouteElement
-                  element={pageComponent}
-                  loggedIn={loggedIn}
-                />
+                <ProtectedRouteElement loggedIn={loggedIn}>
+                  {pageComponent}
+                </ProtectedRouteElement>
               }
             />
 
             <Route
               path="*"
               element={
-                <ProtectedRouteElement
-                  element={pageComponent}
-                  loggedIn={loggedIn}
-                />
+                <ProtectedRouteElement loggedIn={loggedIn}>
+                  {pageComponent}
+                </ProtectedRouteElement>
               }
             />
           </Routes>
