@@ -1,11 +1,7 @@
 import { Link, Route, Routes } from "react-router-dom";
 import logoPath from "../images/logo.svg";
-import { useContext } from "react";
-import { CurrentUserContext } from "contexts/CurrentUserContext";
 
 function Header(props) {
-  const currentUser = useContext(CurrentUserContext);
-
   function onLogOut() {
     props.handeLogOut();
   }
@@ -23,7 +19,7 @@ function Header(props) {
 
   const exitLink = (
     <div>
-      <span>{props.email}</span>
+      <span className="header__email">{props.email}</span>
       <Link className="header__link" to="/sign-in" onClick={onLogOut}>
         Выйти
       </Link>
