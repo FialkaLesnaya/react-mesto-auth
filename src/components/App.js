@@ -13,13 +13,15 @@ import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import DeleteCardPopup from "./DeleteCardPopup";
-import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Login from "./Login";
 import Register from "./Register";
 import ProtectedRouteElement from "./ProtectedRoute";
 import { AuthApi } from "utils/AuthApi";
+import InfoTooltip from "./InfoTooltip";
 
 function App() {
+  const [isInfoTooltipOpen, setIsInfoTooltipOpen] = useState(false);
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
@@ -29,6 +31,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(currentUserObject);
   const [cards, setCards] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isErrorAuth, setIsErrorAuth] = useState(true);
   const [email, setEmail] = useState(null);
   const navigate = useNavigate();
 
@@ -60,6 +63,7 @@ function App() {
     setIsDeleteCardOpen(false);
     setSelectedCard(null);
     setDeletedCard(null);
+    setIsInfoTooltipOpen(false);
   };
 
   useEffect(() => {
@@ -183,14 +187,21 @@ function App() {
       })
       .catch((err) => {
         console.log(`Ошибка загрузки данных ${err}`);
+        setIsErrorAuth(true);
+        setIsInfoTooltipOpen(true);
       });
   }
 
   function handleRegister(password, email) {
     AuthApi.signUp(password, email)
-      .then((data) => {})
+      .then((data) => {
+        setIsErrorAuth(false);
+        setIsInfoTooltipOpen(true);
+      })
       .catch((err) => {
         console.log(`Ошибка загрузки данных ${err}`);
+        setIsErrorAuth(true);
+        setIsInfoTooltipOpen(true);
       });
   }
   function handeLogOut() {
@@ -283,6 +294,12 @@ function App() {
               }
             />
           </Routes>
+
+          <InfoTooltip
+            isOpen={isInfoTooltipOpen}
+            onClose={closeAllPopups}
+            isError={isErrorAuth}
+          ></InfoTooltip>
         </div>
       </div>
     </CurrentUserContext.Provider>

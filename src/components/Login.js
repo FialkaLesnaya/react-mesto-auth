@@ -7,6 +7,9 @@ function Login(props) {
   function onSubmit(e) {
     e.preventDefault();
 
+    if (password === "" || email === "") {
+      return;
+    }
     props.handleLogin(password, email);
   }
 

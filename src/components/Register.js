@@ -7,6 +7,9 @@ function Register(props) {
 
   function onSubmit(e) {
     e.preventDefault();
+    if (password === "" || email === "") {
+      return;
+    }
 
     props.handleRegister(password, email);
   }
